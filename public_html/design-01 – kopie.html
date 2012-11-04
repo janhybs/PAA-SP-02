@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <script src="js/Page.js" type="text/javascript"></script>
+        <script src="js/Database_1.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            window.onload = page.init ();
+        </script>
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel='stylesheet' media='screen and (max-width: 1000px)' href='css/mobile.css' />
+        <link rel='stylesheet' media='screen and (min-width: 1001px)' href='css/tablet.css' />
+    </head>
+    <body>
+        <div id="content">
+            <div id="topBarBlock">
+                <h1 id="logo">Todo list</h1>
+                <button id="addGroup">+Group</button>
+                <button id="addTask" onclick="page.showNewTaskForm();">+Task</button>
+            </div>
+
+            <div id="groupListBlock">
+                <button id="prevGroupBtn" onclick="page.prevGroup();">&lt;</button>
+                <ul id="groupList">
+                    <li class="">
+                        <a href="#" onclick="" class="selected">
+                            <h2>Main Group</h2>
+                            <p>description description description description description</p>
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#" onclick="">
+                            <h2>Main Group</h2>
+                            <p>description description description description description</p>
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#" onclick="">
+                            <h2>Main Group</h2>
+                            <p>description description description description description</p>
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#" onclick="">
+                            <h2>Main Group</h2>
+                            <p>description description description description description</p>
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#" onclick="">
+                            <h2>Main Group</h2>
+                            <p>description description description description description</p>
+                        </a>
+                    </li>
+                </ul>
+                <button id="nextGroupBtn" onclick="page.nextGroup();">&gt;</button>
+            </div>
+
+
+            <div id="taskListBlock">
+                <ul id="taskList">
+                    <li class="incomplete"><a href="#" onclick="">Main</a></li>
+                    <li class="complete"><a href="#" onclick="">Second</a></li>
+                    <li class="incomplete"><a href="#" onclick="">Third</a></li>
+                    <li class="incomplete"><a href="#" onclick="">Forth</a></li>
+                    <li class="complete"><a href="#" onclick="">Fifth</a></li>
+                    <li class="incomplete"><a href="#" onclick="">Sixth</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="newTaskForm" style="visibility: hidden; display: none;">
+            <form>
+
+                <label for="taskTitle">Title: </label>
+                <input id="taskTitle" type="text" name="title" value="" placeholder="title" />
+                <br />
+
+                <label for="taskDescription">Description: </label>
+                <input id="taskDescription" type="text" name="title" value="" placeholder="description" />
+                <br />
+
+                <label for="taskState">Title: </label>
+                <select id="taskState" name="ovoce">
+                    <option value="complete">complete</option>
+                    <option value="incomplete" selected="selected">incomplete</option>
+                </select>
+                <br />
+
+                <label for="groupID">Group: </label>
+                <select id="groupID" name="ovoce">
+                </select>
+                <br />
+
+                <input type="button" value="Cancel" name="cancel" onclick="page.hideNewTaskForm()" />
+                <input type="button" value="Create" name="create" onclick="page.addNewTaskFromForm()" />
+
+            </form>
+        </div>
+
+        <footer class="clear"></footer>
+    </body>
+</html>

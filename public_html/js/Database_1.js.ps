@@ -1,0 +1,259 @@
+var TASKS = "tasks";
+var GROUPS = "groups";
+var groupsCallback;
+var tasksCallback;
+var database = {
+    db: null
+};
+
+database.init = function () {
+    try {
+        if (window.openDatabase) {
+            var shortName = 'TASKS';
+            var version = '1.0';
+            var displayName = 'TASKS Database';
+            var maxSize = 65536; //  bytes
+
+            this.db = openDatabase (shortName, version, displayName, maxSize);
+            this.createTables ();
+            return true;
+        } else {
+            alert ('Databases are not supported in this browser.');
+            return false;
+        }
+    } catch (e) {
+        if (e === 2) {
+            console.log ("Invalid database version.");
+        } else {
+            console.log ("Unknown error " + e + ".");
+        }
+        return false;
+    }
+};
+
+
+database.createTables = function () {
+    this.db.transaction (
+            function (transaction) {
+                transaction.executeSql (
+                        'CREATE TABLE IF NOT EXISTS groups (\n\
+                            groupID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n\
+                            groupTitle TEXT NOT NULL,\n\
+                            groupDescription TEXT NOT NULL);',
+                        [], nullDataHandler, errorHandler);
+                transaction.executeSql (
+                        'CREATE TABLE IF NOT EXISTS tasks (\n\
+                            taskID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n\
+                            groupID INTEGER NOT NULL, \n\
+                            taskTitle TEXT NOT NULL,\n\
+                            taskDescription TEXT NOT NULL,\n\
+                            taskState TEXT NOT NULL);',
+                        [], nullDataHandler, errorHandler);
+                transaction.executeSql (
+                        'INSERT INTO groups (\n\
+                            groupID, groupTitle, groupDescription\n\
+                            ) VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?);',
+                        [
+                            0, 'Main Group', 'important stuff',
+                            1, 'Secondary Group', '',
+                            2, 'Tercial Group', 'trash'
+                                ],
+                        nullDataHandler, errorHandler);
+
+            }
+    );
+
+    database.insertGroup (0, 'Main Group', 'important stuff');
+    database.insertGroup (1, 'Secondary Group', '');
+    database.insertGroup (2, 'Tercial Group', 'trash');
+//    database.addTask (Task ("Main task", "really important", "", 0));
+//    database.addTask (Task ("Secondary task", "also really important", "", 0));
+//    database.addTask (Task ("Secondary task", "also really important", "", 0));
+//    database.addTask (Task ("Main task", "really important", "", 1));
+//    database.addTask (Task ("Main task", "really important", "", 1));
+};
+
+database.insertGroup = function (id, title, description) {
+    this.db.transaction (
+            function (transaction) {
+                transaction.executeSql (
+                        'INSERT INTO groups (\n\
+                            groupID, groupTitle, groupDescription\n\
+                            ) VALUES (?, ?, ?);',
+                        [id, title, description],
+                        nullDataHandler, errorHandler);
+
+            }
+    );
+};
+
+database.select = function (table, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('SELECT * FROM ' + table + ';');
+                transaction.executeSql ('SELECT * FROM ' + table + ';', [],
+                        function (transaction, results) {
+                            var items = [];
+                            for (var i = 0; i < results.rows.length; i++)
+                                items.push (results.rows.item (i));
+                            callback (items);
+                        }
+                , errorHandler);
+            }
+    );
+};
+
+database.selectGroups = function (callback) {
+    this.select (GROUPS, callback);
+};
+
+database.selectTasks = function (callback) {
+    this.select (TASKS, callback);
+};
+
+database.getTask = function (taskID, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('SELECT * FROM tasks WHERE taskID = ?;');
+                transaction.executeSql ('SELECT * FROM tasks WHERE taskID = ?;', [taskID],
+                        function (transaction, results) {
+                            console.log (results);
+                            callback (results.rows.item (0));
+                        }
+                , errorHandler);
+            }
+    );
+};
+
+database.selectGroupTasks = function (groupID, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('SELECT * FROM tasks WHERE groupID = ?;');
+                transaction.executeSql ('SELECT * FROM tasks WHERE groupID = ? ORDER BY taskID DESC;', [groupID],
+                        function (transaction, results) {
+                            var items = [];
+                            for (var i = 0; i < results.rows.length; i++)
+                                items.push (results.rows.item (i));
+                            callback (items);
+                        }
+                , errorHandler);
+            }
+    );
+};
+
+database.addTask = function (task, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('INSERT INTO tasks (groupID, taskTitle, taskDescription, taskState) VALUES (?, ?, ?, ?);');
+                transaction.executeSql ('INSERT INTO tasks (groupID, taskTitle, taskDescription, taskState) VALUES (?, ?, ?, ?);',
+                        [task.groupID, task.taskTitle, task.taskDescription, task.taskState], nullDataHandler, errorHandler);
+                if (callback !== undefined)
+                    callback (task);
+            }
+    );
+};
+
+database.invertTaskStatus = function (taskID, callback) {
+    database.getTask (taskID, function (task) {
+        var t = Task (task.taskTitle, task.taskDescription,
+                task.taskState === "complete" ? "incomplete" : "complete", task.groupID, task.taskID);
+        database.editTask (t, callback);
+    });
+};
+
+database.editTask = function (task, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('UPDATE tasks SET taskTitle = ?, taskDescription = ?, taskState = ? WHERE taskID = ?');
+                transaction.executeSql ('UPDATE tasks SET taskTitle = ?, taskDescription = ?, taskState = ? WHERE taskID = ?',
+                        [task.taskTitle, task.taskDescription, task.taskState, task.taskID], nullDataHandler, errorHandler);
+                if (callback !== undefined)
+                    callback (task);
+            }
+    );
+};
+
+database.addGroup = function (group, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('INSERT INTO groups (groupTitle, groupDescription) VALUES (?, ?);');
+                transaction.executeSql ('INSERT INTO groups (groupTitle, groupDescription) VALUES (?, ?);',
+                        [group.groupTitle, group.groupDescription], nullDataHandler, errorHandler);
+                if (callback !== undefined)
+                    callback (group);
+            }
+    );
+};
+
+database.deleteGroup = function (groupID, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('DELETE FROM groups WHERE groupID = ?;');
+                transaction.executeSql ('DELETE FROM groups WHERE groupID = ?;',
+                        [groupID], nullDataHandler, errorHandler);
+                if (callback !== undefined)
+                    callback (groupID);
+            }
+    );
+};
+
+database.deleteTask = function (taskID, callback) {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('DELETE FROM tasks WHERE taskID = ?;');
+                transaction.executeSql ('DELETE FROM tasks WHERE taskID = ?;',
+                        [taskID], nullDataHandler, errorHandler);
+                if (callback !== undefined)
+                    callback (taskID);
+            }
+    );
+};
+
+
+database.clear = function () {
+    this.db.transaction (
+            function (transaction) {
+                console.log ('DROP TABLE tasks');
+                console.log ('DROP TABLE groups');
+                transaction.executeSql ('DROP TABLE tasks;', [], nullDataHandler, errorHandler);
+                transaction.executeSql ('DROP TABLE groups;', [], nullDataHandler, errorHandler);
+            }
+    );
+};
+
+
+
+
+
+function nullDataHandler (e, e1) {
+//    console.log (e);
+//    console.log (e1);
+}
+
+function errorHandler (e, e1) {
+//    console.log (e);
+//    console.log (e1);
+}
+
+
+function Task (_title, _description, _state, _groupID, _taskID) {
+    return {
+        taskTitle: _title,
+        taskDescription: _description,
+        taskState: _state,
+        groupID: _groupID || 0,
+        taskID: _taskID || 0
+    };
+}
+
+function Group (_title, _description, _groupID) {
+    return {
+        groupTitle: _title,
+        groupDescription: _description,
+        groupID: _groupID || 0
+    };
+}
+
+function getTaskState (task) {
+    return task.taskState === "complete" ? "complete" : "incomplete";
+}

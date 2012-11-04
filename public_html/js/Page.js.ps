@@ -1,0 +1,165 @@
+var groups = [];
+var currentGroup = null;
+var page = {};
+
+
+page.init = function () {
+    database.init ();
+
+    database.selectGroups (function (items) {
+
+        groups = [];
+        var innerHTML = "", firstID = null;
+        for (var i = 0, l = items.length; i < l; i++) {
+            if (firstID === null)
+                firstID = items[i].groupID;
+            innerHTML += page.createGroupElement (items[i], i);
+            groups.push (items[i].groupID);
+        }
+
+        document.getElementById ('groupList').innerHTML = l === 0 ? "No groups" : innerHTML;
+
+        if (firstID !== null)
+            page.loadTasks (firstID);
+
+//        section = document.getElementById (id);
+//        section.onmousedown = function (e) {
+//            console.log (e);
+//            downTarget = section;
+//            downPosition = {x: e.x, y: e.y};
+//        };
+//
+//        section.onmouseup = function (e) {
+//            console.log (e);
+//            var dx = Math.abs (e.x - downPosition.x);
+//            var dy = Math.abs (e.y - downPosition.y);
+//            if (dx > 3 * dy && dx > 50) {
+//                alert ("swipe");
+//            }
+//            downPosition = null;
+//            downTarget = false;
+//        };
+    });
+};
+
+
+page.loadTasks = function (groupID) {
+    page.selectGroup (groupID);
+    currentGroup = groupID;
+    database.selectGroupTasks (groupID, function (tasks) {
+        var innerHTML = '';
+        for (var i = 0, l = tasks.length; i < l; i++)
+            innerHTML += page.createTaskElement (tasks[i], i);
+
+        document.getElementById ('taskList').innerHTML = l === 0 ? "No tasks" : innerHTML;
+    });
+};
+
+page.createGroupElement = function (group) {
+    return '\n\
+        <li>\n\
+            <a href="#" onclick="page.loadTasks(' + group.groupID + ')" id="group-' + group.groupID + '">\n\
+                <h2>' + group.groupTitle + '</h2>\n\
+                <p>' + group.groupDescription + '</p>\n\
+            </a>\n\
+        </li>';
+};
+
+page.createTaskElement = function (task) {
+    return '\n\
+        <li>\n\
+            <a href="#" onclick="page.invertTaskStatus(' + task.taskID + ')" id="task-' + task.taskID + '" class="' + getTaskState (task) + '">\n\
+                <h2>' + task.taskTitle + '</h2>\n\
+                <p>' + task.taskDescription + '</p>\n\
+            </a>\n\
+        </li>';
+};
+
+page.invertTaskStatus = function (taskID) {
+    database.invertTaskStatus (taskID, function (task) {
+        var item = document.getElementById ('task-' + taskID);
+        item.setAttribute ('class', task.taskState);
+    });
+};
+
+
+page.selectGroup = function (groupID) {
+    var group, index = 0;
+    groupID = Number (groupID);
+    while (true) {
+        if ((group = document.getElementById ('group-' + index)) === null)
+            return;
+
+        group.setAttribute ('class', index === groupID ? 'selected' : '');
+        index++;
+    }
+};
+
+
+page.hideNewTaskForm = function () {
+    var form = document.getElementById ('newTaskForm');
+    form.style.visibility = 'hidden';
+    form.style.display = 'none';
+};
+
+page.showNewTaskForm = function () {
+    var form = document.getElementById ('newTaskForm');
+    form.style.visibility = 'visible';
+    form.style.display = 'block';
+
+    database.selectGroups (function (groups) {
+        var innerHTML = "";
+        for (var i = 0, l = groups.length; i < l; i++)
+            innerHTML += '<option value="' + groups[i].groupID + '">' + groups[i].groupTitle + '</option>';
+
+        document.getElementById ('groupID').innerHTML = innerHTML;
+    });
+};
+
+
+page.addNewTaskFromForm = function () {
+    var groupID;
+    database.addTask (Task (
+            page.getIDValue ('taskTitle'),
+            page.getIDValue ('taskDescription'),
+            page.getIDValue ('taskState'),
+            groupID = page.getIDValue ('groupID'))
+            ,
+            function (task) {
+                page.hideNewTaskForm ();
+                page.loadTasks (groupID);
+            });
+
+};
+
+
+page.prevGroup = function () {
+    var index = groups.indexOf (currentGroup);
+    if (index === 0)
+        index = groups.length;
+    page.loadTasks (index - 1);
+};
+
+page.nextGroup = function () {
+    var index = groups.indexOf (currentGroup);
+    if (index === groups.length - 1)
+        index = -1;
+    page.loadTasks (index + 1);
+};
+
+
+page.getIDValue = function (id) {
+    return document.getElementById (id).value;
+};
+
+
+var downTarget = null;
+var downPosition = null;
+
+window.onmousedown = function (e) {
+    downTarget = true;
+};
+
+window.onmouseup = function (e) {
+    downTarget = false;
+};

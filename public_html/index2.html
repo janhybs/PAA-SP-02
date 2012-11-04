@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/main.css" />
+        <meta content='width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+        <meta content="width=device-width" name="viewport" />
+        <script src="js/chibi-min.js" type="text/javascript"></script>
+        <script src="js/Libs.js" type="text/javascript"></script>
+        <script src="js/DrawSomething.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            $ (document).ready (function () {
+                page.init ();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="drawSomething">
+            <div class="top">
+                <ul>
+                    <li style="background: black" class="selected">black</li>
+                    <li style="background: white">white</li>
+                    <li style="background: red">red</li>
+                    <li style="background: yellow">yellow</li>
+                    <li style="background: blue">blue</li>
+                    <li style="background: green">green</li>
+                    <li style="background: orange">orange</li>
+                    <li style="background: yellowgreen">yellowgreen</li>
+                    <li><button>Fill</button></li>
+                </ul>
+            </div>
+            <div class="canvas">
+                <canvas id="drawCanvas" width="320" height="240" >Canvas not supported</canvas>
+                <button id="strokeInc">+</button>
+                <h3 id="strokeWidth">5</h3>
+                <button id="strokeDec">-</button>
+            </div>
+            <div class="controls">
+                <button>Attach</button>
+                <button>Cancel</button>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    </body>
+</html>
