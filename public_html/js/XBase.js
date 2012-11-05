@@ -58,6 +58,7 @@ Array.prototype.findAllByID = function (key, ID) {
         groupAttrs: ["id", "title", "description"],
         autoInc: ["groupID", "taskID"]
     };
+    var _isSupported = null;
 
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -68,6 +69,19 @@ Array.prototype.findAllByID = function (key, ID) {
                 || (XBase.getGroups ().length === 0)) {
             XBase.firstTime ();
         }
+    };
+
+
+    XBase.isSupported = function () {
+        if (_isSupported === null) {
+            var uid = "check" + Math.random (), result;
+            localStorage.setItem (uid, uid);
+            result = localStorage.getItem (uid) === uid;
+            localStorage.removeItem (uid);
+            _isSupported = result && localStorage;
+        }
+
+        return _isSupported;
     };
 
 
@@ -245,7 +259,7 @@ Array.prototype.findAllByID = function (key, ID) {
         localStorage.setObject ("autoInc", obj);
         return id;
     };
-    
+
 //----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 

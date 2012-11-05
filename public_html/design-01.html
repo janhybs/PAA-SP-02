@@ -17,7 +17,20 @@
         <script type="text/javascript">
             $ (document).ready (function () {
                 page.init ();
+                
+                if (!page.isSupported()) {
+                    $ (document.body).html ('<div class="warning">Your device is not fully supported</div>');
+                    return;
+                }
+        
                 DrawSomething.init ();
+                if (!DrawSomething.isSupported ()) {
+                    $ ('[data-require=canvas]').hide ();
+                    $ ('[data-require=no-canvas]').show ();
+                } else {
+                    $ ('[data-require=canvas]').show ();
+                    $ ('[data-require=no-canvas]').hide ();
+                }
             });
         </script>
     </head>
@@ -119,11 +132,12 @@
 
 
                 <label>Image: </label>
-                <div class="select">
+                <div class="select" data-require="canvas">
                     <img id="imageNew" style="display: none"  src="" />
                     <button id="imageDrawNew">Draw one</button>
                     <button id="imageClearNew" style="display: none">Delete it</button>
                 </div>
+                <div class="warning" data-require="no-canvas">Your device does not fully support canvas feature</div>
                 <br />
 
                 <div class="form-btns">
@@ -187,11 +201,12 @@
 
 
                 <label>Image: </label>
-                <div class="select">
+                <div class="select" data-require="canvas">
                     <img id="imageEdit" style="display: none"  src="" />
                     <button id="imageDrawEdit">Draw one</button>
                     <button id="imageClearEdit" style="display: none">Delete it</button>
                 </div>
+                <div class="warning" data-require="no-canvas">Your device does not fully support canvas feature</div>
                 <br />
 
                 <div class="form-btns">

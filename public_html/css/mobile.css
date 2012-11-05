@@ -265,3 +265,9 @@
     margin-top: 35px;
     text-align: center;
 }
+
+.popup .warning {
+    display: inline-block;
+    width: 240px;
+    margin: 0;
+}

@@ -38,7 +38,6 @@ li {
 }
 
 .hidden {
-    visibility: hidden;
     display: none;
 }
 
@@ -142,7 +141,7 @@ button {
         color-stop(0, rgb(205,217,235)),
         color-stop(1, rgb(227,244,255))
         );
-    
+
     width: 540px;
     position: absolute;
     left: 0;
@@ -155,4 +154,11 @@ button {
 #imageNew, #imageEdit {
     height: 180px;
     width: 214px;
+}
+
+.warning {
+    text-align: center;
+    background: #FF6;
+    border: 2px dashed red;
+    padding: 5px;
 }

@@ -7,67 +7,15 @@
     var groups = [];
     var currentSection = null;
     var imageData = null;
+    var _isSupported = null;
 
-    page.showDrawSomething = function () {
-        $ ('#drawSomething').show ();
-        DrawSomething.clearCanvas ();
-        
-        if (currentSection === 'editTask')
-            $ ('#editTaskForm').hide ();
-        else if (currentSection === 'newTask')
-            $ ('#newTaskForm').hide ();
-    };
-
-    page.hideDrawSomething = function (attach) {
-        $ ('#drawSomething').hide ();
-        if (currentSection === 'editTask')
-            $ ('#editTaskForm').show ();
-        else if (currentSection === 'newTask')
-            $ ('#newTaskForm').show ();
-
-
-        //# cancel
-        if (attach === false) {
-            switch (currentSection) {
-                case 'editTask':
-                    if (imageData === null) {
-                        $ ('#imageEdit').hide ();
-                        $ ('#imageEdit').attr ('src', "");
-                        $ ('#imageClearEdit').hide ();
-                    } else {
-                        $ ('#imageEdit').show ();
-                        $ ('#imageEdit').attr ('src', imageData);
-                        $ ('#imageClearEdit').show ();
-                    }
-                    break;
-                case 'newTask':
-                    $ ('#imageNew').hide ();
-                    $ ('#imageNew').attr ('src', "");
-                    imageData = null;
-                    break;
-            }
-
-            //# attach
-        } else if (attach === true) {
-            switch (currentSection) {
-                case 'editTask':
-                    imageData = DrawSomething.getImageData ();
-                    $ ('#imageEdit').show ();
-                    $ ('#imageEdit').attr ('src', imageData);
-                    $ ('#imageClearEdit').show ();
-                    break;
-                case 'newTask':
-                    imageData = DrawSomething.getImageData ();
-                    $ ('#imageNew').show ();
-                    $ ('#imageNew').attr ('src', imageData);
-                    $ ('#imageClearNew').show ();
-                    break;
-            }
-        }
-    };
 
     page.init = function () {
         XBase.init ();
+        
+        //# no local storage, no content
+        if (!XBase.isSupported ())
+            return;
 
 
         //--------------------------------------------------------------------------------------------------------------
@@ -100,6 +48,19 @@
 
         //--------------------------------------------------------------------------------------------------------------
 
+        page.loadGroups ();
+    };
+
+
+    page.isSupported = function () {
+        if (_isSupported === null) {
+            _isSupported = XBase.isSupported ();
+        }
+
+        return _isSupported;
+    };
+
+    page.loadGroups = function () {
         var items = XBase.getGroups ();
         groups = [];
         var innerHTML = "", firstID = null;
@@ -110,7 +71,7 @@
             groups.push (items[i].gid);
         }
 
-        $ ("#groupList").html (l === 0 ? "No groups" : innerHTML);
+        $ ("#groupList").html (l === 0 ? '<li class="empty">No groups</li>' : innerHTML);
         $ ("#groupList li .action").on ('click', page.onGroupAction);
 
         registerAdvancedListeners ($ ("#groupList li a").find ());
@@ -130,7 +91,7 @@
         for (var i = 0, l = tasks.length; i < l; i++)
             innerHTML += page.createTaskElement (tasks[i], i);
 
-        $ ("#taskList").html (l === 0 ? "No tasks" : innerHTML);
+        $ ("#taskList").html (l === 0 ? '<li class="empty">No Tasks</li>' : innerHTML);
         $ ("#taskList li .action").on ('click', page.onTaskAction);
 
         registerAdvancedListeners ($ ("#taskList li a").find ());
@@ -192,6 +153,7 @@
 
 
     page.selectGroup = function (groupID) {
+        console.log (groupID);
         $ ('#groupList li').cls ("selected", "remove");
         $ ($ ('#group-' + groupID).find ().parentNode.parentNode).cls ("selected", "add");
     };
@@ -332,7 +294,7 @@
         var group = XBase.addGroup (tit, des);
 
         page.hideNewGroupForm ();
-        //document.location.reload ();
+        page.loadGroups ();
     };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -352,7 +314,7 @@
         group = XBase.editGroup (gid, tit, des);
 
         page.hideEditGroupForm ();
-        //document.location.reload ();
+        page.loadGroups ();
     };
 
 
@@ -390,8 +352,8 @@
             return;
 
         XBase.deleteGroup (groupID);
-        //document.location.reload ();
         page.hideEditGroupForm ();
+        page.loadGroups ();
     };
 
     page.deleteTask = function () {
@@ -420,6 +382,65 @@
             index = -1;
         page.init ();
         page.loadTasks (index + 1);
+    };
+
+
+    page.showDrawSomething = function () {
+        $ ('#drawSomething').show ();
+        DrawSomething.clearCanvas ();
+
+        if (currentSection === 'editTask')
+            $ ('#editTaskForm').hide ();
+        else if (currentSection === 'newTask')
+            $ ('#newTaskForm').hide ();
+    };
+
+    page.hideDrawSomething = function (attach) {
+        $ ('#drawSomething').hide ();
+        if (currentSection === 'editTask')
+            $ ('#editTaskForm').show ();
+        else if (currentSection === 'newTask')
+            $ ('#newTaskForm').show ();
+
+
+        //# cancel
+        if (attach === false) {
+            switch (currentSection) {
+                case 'editTask':
+                    if (imageData === null) {
+                        $ ('#imageEdit').hide ();
+                        $ ('#imageEdit').attr ('src', "");
+                        $ ('#imageClearEdit').hide ();
+                    } else {
+                        $ ('#imageEdit').show ();
+                        $ ('#imageEdit').attr ('src', imageData);
+                        $ ('#imageClearEdit').show ();
+                    }
+                    break;
+                case 'newTask':
+                    $ ('#imageNew').hide ();
+                    $ ('#imageNew').attr ('src', "");
+                    imageData = null;
+                    break;
+            }
+
+            //# attach
+        } else if (attach === true) {
+            switch (currentSection) {
+                case 'editTask':
+                    imageData = DrawSomething.getImageData ();
+                    $ ('#imageEdit').show ();
+                    $ ('#imageEdit').attr ('src', imageData);
+                    $ ('#imageClearEdit').show ();
+                    break;
+                case 'newTask':
+                    imageData = DrawSomething.getImageData ();
+                    $ ('#imageNew').show ();
+                    $ ('#imageNew').attr ('src', imageData);
+                    $ ('#imageClearNew').show ();
+                    break;
+            }
+        }
     };
 
     window.page = page;

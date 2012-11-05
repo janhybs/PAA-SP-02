@@ -6,13 +6,24 @@
     var strokeWeight = 5;
     var DrawSomething = {};
     var intID = -1;
+    var _isSupported = null;
+
+    DrawSomething.isSupported = function () {
+        if (_isSupported === null) {
+            var tmpCanvas;
+            _isSupported = !!(tmpCanvas = document.createElement ('canvas')).getContext
+                    && tmpCanvas.toDataURL ("image/png").indexOf ("data:image/png") === 0;
+        }
+
+        return _isSupported;
+    };
 
     DrawSomething.clearCanvas = function () {
         context.fillStyle = "#FFFFFF";
         context.fillRect (0, 0, canvas.width, canvas.height);
     };
-    
-    
+
+
     DrawSomething.onMouseDown = function (e) {
         isDown = true;
 
@@ -21,6 +32,7 @@
         else
             DrawSomething.startDrawing (DrawSomething.getCoords (e));
         e.preventDefault ();
+        
     };
 
     DrawSomething.onMouseUp = function (e) {
@@ -66,9 +78,9 @@
         $ ("#resultJPG").attr ("src", canvas.toDataURL ("image/jpeg"));
         $ ("#resultPNG").attr ("src", canvas.toDataURL ("image/png"));
     };
-    
+
     DrawSomething.getImageData = function (type) {
-        return canvas.toDataURL (type ||"image/png");
+        return canvas.toDataURL (type || "image/png");
     };
 
     DrawSomething.addDrawing = function (point) {

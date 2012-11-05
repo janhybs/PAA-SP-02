@@ -108,6 +108,13 @@
     border: 2px solid #4da6ea;
 }
 
+#taskListBlock .empty {
+    font-size: 2em;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+}
+
 #taskListBlock li {
     position: relative;
     clear: left;
@@ -177,10 +184,14 @@
 #groupListBlock li a {
     display: block;
     min-height: 50px;
-    border: 1px dashed #CCC;
+    border-bottom: 1px dashed #CCC;
     background: #FEFEFE;
     font-size: 1.2em;
     padding: 10px;
+}
+
+#groupListBlock li:last-child a {
+    border-bottom: none;
 }
 
 #groupListBlock li:nth-child(2n) a {
@@ -275,4 +286,10 @@
     width: 100%;
     margin-top: 35px;
     text-align: right;
+}
+
+.popup .warning {
+    display: inline-block;
+    width: 240px;
+    margin: 0;
 }
