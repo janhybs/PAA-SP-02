@@ -32,7 +32,7 @@
         else
             DrawSomething.startDrawing (DrawSomething.getCoords (e));
         e.preventDefault ();
-        
+
     };
 
     DrawSomething.onMouseUp = function (e) {
@@ -48,6 +48,7 @@
     DrawSomething.onMouseMove = function (e) {
         if (!isDown)
             return;
+
         if (e.touches && e.touches.length > 0)
             DrawSomething.addDrawing (DrawSomething.getCoords (e.touches[0]));
         else
@@ -55,14 +56,18 @@
         e.preventDefault ();
     };
 
+    DrawSomething.onMouseLeave = function (e) {
+        isDown = false;
+        e.preventDefault ();
+    };
+
     DrawSomething.getCoords = function (e) {
         if (e.offsetX)
             return new Point (e.offsetX, e.offsetY);
         else if (e.layerX)
-            return new Point (e.layerX, e.layerY);
-        else
+            return new Point (e.layerX - canvas.offsetLeft, e.layerY - canvas.offsetTop);
+        else if (e.pageX)
             return new Point (e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
-
     };
 
     DrawSomething.startDrawing = function (point) {
@@ -73,10 +78,13 @@
     };
 
     DrawSomething.endDrawing = function (point) {
-        //DrawSomething.addDrawing (point);
-
-        $ ("#resultJPG").attr ("src", canvas.toDataURL ("image/jpeg"));
-        $ ("#resultPNG").attr ("src", canvas.toDataURL ("image/png"));
+        if (lastPoint.x === point.x && lastPoint.y === point.y) {
+            context.beginPath ();
+            context.moveTo (lastPoint.x, lastPoint.y);
+            context.lineTo (point.x, point.y);
+            context.lineTo (point.x + 0.001, point.y + 0.001);
+            context.stroke ();
+        }
     };
 
     DrawSomething.getImageData = function (type) {
@@ -121,6 +129,7 @@
         canvas.onmousedown = DrawSomething.onMouseDown;
         canvas.onmouseup = DrawSomething.onMouseUp;
         canvas.onmousemove = DrawSomething.onMouseMove;
+        canvas.onmouseout = DrawSomething.onMouseLeave;
 
         canvas.ontouchstart = DrawSomething.onMouseDown;
         canvas.ontouchend = DrawSomething.onMouseUp;
