@@ -64,6 +64,9 @@ Array.prototype.findAllByID = function (key, ID) {
 //----------------------------------------------------------------------------------------------------------------------
 
     XBase.init = function () {
+        if (!XBase.isSupported ())
+            return;
+
         if (!localStorage.hasItem ("autoInc")
                 || (!localStorage.hasItem ("version") || localStorage.getItem ('version') < VERSION)
                 || (XBase.getGroups ().length === 0)) {
@@ -75,10 +78,14 @@ Array.prototype.findAllByID = function (key, ID) {
     XBase.isSupported = function () {
         if (_isSupported === null) {
             var uid = "check" + Math.random (), result;
-            localStorage.setItem (uid, uid);
-            result = localStorage.getItem (uid) === uid;
-            localStorage.removeItem (uid);
-            _isSupported = result && localStorage;
+            try {
+                localStorage.setItem (uid, uid);
+                result = localStorage.getItem (uid) === uid;
+                localStorage.removeItem (uid);
+                _isSupported = result && localStorage;
+            } catch (e) {
+                _isSupported = false;
+            }
         }
 
         return _isSupported;
