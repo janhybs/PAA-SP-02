@@ -191,11 +191,20 @@
     position: relative;
 }
 
+
+#taskListBlock .empty {
+    font-size: 2em;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+}
+
 #taskListBlock p {
     line-height: 15px;
     font-weight: normal;
     padding-bottom: 10px;
     padding-right: 50px;
+    white-space: pre;
 }
 
 #taskListBlock li .action {
