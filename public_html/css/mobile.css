@@ -204,7 +204,7 @@
     font-weight: normal;
     padding-bottom: 10px;
     padding-right: 50px;
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 #taskListBlock li .action {
