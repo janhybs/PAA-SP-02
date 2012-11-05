@@ -12,7 +12,7 @@
 
     page.init = function () {
         XBase.init ();
-        
+
         //# no local storage, no content
         if (!XBase.isSupported ())
             return;
@@ -153,7 +153,6 @@
 
 
     page.selectGroup = function (groupID) {
-        console.log (groupID);
         $ ('#groupList li').cls ("selected", "remove");
         $ ($ ('#group-' + groupID).find ().parentNode.parentNode).cls ("selected", "add");
     };
@@ -373,7 +372,7 @@
         var index = groups.indexOf (currentGroup);
         if (index === 0)
             index = groups.length;
-        page.loadTasks (index - 1);
+        page.loadTasks (groups[index - 1]);
     };
 
     page.nextGroup = function () {
@@ -381,7 +380,7 @@
         if (index === groups.length - 1)
             index = -1;
         page.init ();
-        page.loadTasks (index + 1);
+        page.loadTasks (groups[index + 1]);
     };
 
 
